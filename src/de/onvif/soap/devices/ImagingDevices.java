@@ -2,8 +2,6 @@ package de.onvif.soap.devices;
 
 import java.net.ConnectException;
 
-import javax.xml.soap.SOAPException;
-
 import org.onvif.ver10.schema.AbsoluteFocus;
 import org.onvif.ver10.schema.FocusMove;
 import org.onvif.ver10.schema.ImagingOptions20;
@@ -19,6 +17,7 @@ import org.onvif.ver20.imaging.wsdl.SetImagingSettingsResponse;
 
 import de.onvif.soap.OnvifDevice;
 import de.onvif.soap.SOAP;
+import jakarta.xml.soap.SOAPException;
 
 public class ImagingDevices {
 	@SuppressWarnings("unused")

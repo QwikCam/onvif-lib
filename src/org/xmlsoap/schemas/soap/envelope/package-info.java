@@ -5,6 +5,7 @@
 // Generiert: 2014.02.04 um 12:22:03 PM CET 
 //
 
-@javax.xml.bind.annotation.XmlSchema(namespace = "http://schemas.xmlsoap.org/soap/envelope/")
+@XmlSchema(namespace = "http://schemas.xmlsoap.org/soap/envelope/")
 package org.xmlsoap.schemas.soap.envelope;
 
+import jakarta.xml.bind.annotation.XmlSchema;

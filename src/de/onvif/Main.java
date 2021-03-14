@@ -6,11 +6,10 @@ import java.io.InputStreamReader;
 import java.net.ConnectException;
 import java.util.List;
 
-import javax.xml.soap.SOAPException;
-
 import org.onvif.ver10.schema.Profile;
 
 import de.onvif.soap.OnvifDevice;
+import jakarta.xml.soap.SOAPException;
 
 public class Main {
 

@@ -3,8 +3,6 @@ package de.onvif.soap.devices;
 import java.net.ConnectException;
 import java.util.List;
 
-import javax.xml.soap.SOAPException;
-
 import org.onvif.ver10.schema.FloatRange;
 import org.onvif.ver10.schema.PTZConfiguration;
 import org.onvif.ver10.schema.PTZNode;
@@ -43,6 +41,7 @@ import org.onvif.ver20.ptz.wsdl.StopResponse;
 
 import de.onvif.soap.OnvifDevice;
 import de.onvif.soap.SOAP;
+import jakarta.xml.soap.SOAPException;
 
 public class PtzDevices {
 	private OnvifDevice onvifDevice;

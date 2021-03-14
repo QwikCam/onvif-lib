@@ -5,6 +5,8 @@
 // Generiert: 2014.02.04 um 12:22:03 PM CET 
 //
 
-@javax.xml.bind.annotation.XmlSchema(namespace = "http://docs.oasis-open.org/wsn/b-2", elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
+@XmlSchema(namespace = "http://docs.oasis-open.org/wsn/b-2", elementFormDefault = XmlNsForm.QUALIFIED)
 package org.oasis_open.docs.wsn.b_2;
 
+import jakarta.xml.bind.annotation.XmlNsForm;
+import jakarta.xml.bind.annotation.XmlSchema;

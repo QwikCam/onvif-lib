@@ -5,5 +5,8 @@
 // Generiert: 2016.03.16 um 01:52:47 PM CET 
 //
 
-@javax.xml.bind.annotation.XmlSchema(namespace = "http://www.onvif.org/ver10/events/wsdl", elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
+@XmlSchema(namespace = "http://www.onvif.org/ver10/events/wsdl", elementFormDefault = XmlNsForm.QUALIFIED)
 package org.onvif.ver10.events.wsdl;
+
+import jakarta.xml.bind.annotation.XmlNsForm;
+import jakarta.xml.bind.annotation.XmlSchema;

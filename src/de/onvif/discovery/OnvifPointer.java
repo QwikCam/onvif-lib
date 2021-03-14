@@ -4,11 +4,12 @@ import java.net.ConnectException;
 import java.net.URL;
 import java.util.List;
 
-import javax.xml.soap.SOAPException;
+//import javax.xml.soap.SOAPException;
 
 import org.onvif.ver10.schema.Profile;
 
 import de.onvif.soap.OnvifDevice;
+import jakarta.xml.soap.SOAPException;
 
 /**
  * @author th

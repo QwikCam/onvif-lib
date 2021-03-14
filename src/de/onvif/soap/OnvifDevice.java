@@ -15,8 +15,6 @@ import java.util.Random;
 import java.util.SimpleTimeZone;
 import java.util.TimeZone;
 
-import javax.xml.soap.SOAPException;
-
 import org.apache.commons.codec.binary.Base64;
 import org.onvif.ver10.schema.Capabilities;
 
@@ -25,13 +23,15 @@ import de.onvif.soap.devices.ImagingDevices;
 import de.onvif.soap.devices.InitialDevices;
 import de.onvif.soap.devices.MediaDevices;
 import de.onvif.soap.devices.PtzDevices;
+import jakarta.xml.soap.SOAPException;
 
 /**
  * 
  * @author Robin Dick
  * 
  */
-public class OnvifDevice {
+public class OnvifDevice
+{
 	private final String HOST_IP;
 	private String originalIp;
 
@@ -54,24 +54,22 @@ public class OnvifDevice {
 	 * Initializes an Onvif device, e.g. a Network Video Transmitter (NVT) with
 	 * logindata.
 	 * 
-	 * @param hostIp
-	 *            The IP address of your device, you can also add a port but
-	 *            noch protocol (e.g. http://)
-	 * @param user
-	 *            Username you need to login
-	 * @param password
-	 *            User's password to login
-	 * @throws ConnectException
-	 *             Exception gets thrown, if device isn't accessible or invalid
-	 *             and doesn't answer to SOAP messages
-	 * @throws SOAPException 
+	 * @param hostIp   The IP address of your device, you can also add a port but
+	 *                 noch protocol (e.g. http://)
+	 * @param user     Username you need to login
+	 * @param password User's password to login
+	 * @throws ConnectException Exception gets thrown, if device isn't accessible or
+	 *                          invalid and doesn't answer to SOAP messages
+	 * @throws SOAPException
 	 */
-	public OnvifDevice(String hostIp, String user, String password) throws ConnectException, SOAPException {
+	public OnvifDevice(String hostIp, String user, String password) throws ConnectException, SOAPException
+	{
 		this.logger = new Logger();
 
 		this.HOST_IP = hostIp;
 
-		if (!isOnline()) {
+		if (!isOnline())
+		{
 			throw new ConnectException("Host not available.");
 		}
 
@@ -85,7 +83,7 @@ public class OnvifDevice {
 		this.ptzDevices = new PtzDevices(this);
 		this.mediaDevices = new MediaDevices(this);
 		this.imagingDevices = new ImagingDevices(this);
-		
+
 		init();
 	}
 
@@ -93,15 +91,14 @@ public class OnvifDevice {
 	 * Initializes an Onvif device, e.g. a Network Video Transmitter (NVT) with
 	 * logindata.
 	 * 
-	 * @param hostIp
-	 *            The IP address of your device, you can also add a port but
-	 *            noch protocol (e.g. http://)
-	 * @throws ConnectException
-	 *             Exception gets thrown, if device isn't accessible or invalid
-	 *             and doesn't answer to SOAP messages
-	 * @throws SOAPException 
+	 * @param hostIp The IP address of your device, you can also add a port but noch
+	 *               protocol (e.g. http://)
+	 * @throws ConnectException Exception gets thrown, if device isn't accessible or
+	 *                          invalid and doesn't answer to SOAP messages
+	 * @throws SOAPException
 	 */
-	public OnvifDevice(String hostIp) throws ConnectException, SOAPException {
+	public OnvifDevice(String hostIp) throws ConnectException, SOAPException
+	{
 		this(hostIp, null, null);
 	}
 
@@ -109,112 +106,131 @@ public class OnvifDevice {
 	 * Internal function to check, if device is available and answers to ping
 	 * requests.
 	 */
-	private boolean isOnline() {
+	private boolean isOnline()
+	{
 		String port = HOST_IP.contains(":") ? HOST_IP.substring(HOST_IP.indexOf(':') + 1) : "80";
 		String ip = HOST_IP.contains(":") ? HOST_IP.substring(0, HOST_IP.indexOf(':')) : HOST_IP;
-		
+
 		Socket socket = null;
-		try {
-			SocketAddress sockaddr = new InetSocketAddress(ip, new Integer(port));
+		try
+		{
+			SocketAddress sockaddr = new InetSocketAddress(ip, Integer.parseInt(port));
 			socket = new Socket();
 
 			socket.connect(sockaddr, 5000);
-		}
-		catch (NumberFormatException | IOException e) {
+		} catch (NumberFormatException | IOException e)
+		{
 			return false;
-		}
-		finally {
-			try {
-				if (socket != null) {
+		} finally
+		{
+			try
+			{
+				if (socket != null)
+				{
 					socket.close();
 				}
-			}
-			catch (IOException ex) {
+			} catch (IOException ex)
+			{
 			}
 		}
 		return true;
 	}
 
 	/**
-	 * Initalizes the addresses used for SOAP messages and to get the internal
-	 * IP, if given IP is a proxy.
+	 * Initalizes the addresses used for SOAP messages and to get the internal IP,
+	 * if given IP is a proxy.
 	 * 
-	 * @throws ConnectException
-	 *             Get thrown if device doesn't give answers to
-	 *             GetCapabilities()
-	 * @throws SOAPException 
+	 * @throws ConnectException Get thrown if device doesn't give answers to
+	 *                          GetCapabilities()
+	 * @throws SOAPException
 	 */
-	protected void init() throws ConnectException, SOAPException {
+	protected void init() throws ConnectException, SOAPException
+	{
 		Capabilities capabilities = getDevices().getCapabilities();
 
-		if (capabilities == null) {
+		if (capabilities == null)
+		{
 			throw new ConnectException("Capabilities not reachable.");
 		}
 
 		String localDeviceUri = capabilities.getDevice().getXAddr();
 
-		if (localDeviceUri.startsWith("http://")) {
+		if (localDeviceUri.startsWith("http://"))
+		{
 			originalIp = localDeviceUri.replace("http://", "");
 			originalIp = originalIp.substring(0, originalIp.indexOf('/'));
-		}
-		else {
+		} else
+		{
 			logger.error("Unknown/Not implemented local procotol!");
 		}
-			
-		if (!originalIp.equals(HOST_IP)) {
+
+		if (!originalIp.equals(HOST_IP))
+		{
 			isProxy = true;
 		}
 
-		if (capabilities.getMedia() != null && capabilities.getMedia().getXAddr() != null) {
+		if (capabilities.getMedia() != null && capabilities.getMedia().getXAddr() != null)
+		{
 			serverMediaUri = replaceLocalIpWithProxyIp(capabilities.getMedia().getXAddr());
 		}
 
-		if (capabilities.getPTZ() != null && capabilities.getPTZ().getXAddr() != null) {
+		if (capabilities.getPTZ() != null && capabilities.getPTZ().getXAddr() != null)
+		{
 			serverPtzUri = replaceLocalIpWithProxyIp(capabilities.getPTZ().getXAddr());
 		}
-		
-		if (capabilities.getImaging() != null && capabilities.getImaging().getXAddr() != null) {
+
+		if (capabilities.getImaging() != null && capabilities.getImaging().getXAddr() != null)
+		{
 			serverImagingUri = replaceLocalIpWithProxyIp(capabilities.getImaging().getXAddr());
 		}
 
-		if (capabilities.getMedia() != null && capabilities.getEvents().getXAddr() != null) {
+		if (capabilities.getMedia() != null && capabilities.getEvents().getXAddr() != null)
+		{
 			serverEventsUri = replaceLocalIpWithProxyIp(capabilities.getEvents().getXAddr());
 		}
 	}
 
-	public String replaceLocalIpWithProxyIp(String original) {
-		if (original.startsWith("http:///")) {
-			original.replace("http:///", "http://"+HOST_IP);
+	public String replaceLocalIpWithProxyIp(String original)
+	{
+		if (original.startsWith("http:///"))
+		{
+			original.replace("http:///", "http://" + HOST_IP);
 		}
-		
-		if (isProxy) {
+
+		if (isProxy)
+		{
 			return original.replace(originalIp, HOST_IP);
 		}
 		return original;
 	}
 
-	public String getUsername() {
+	public String getUsername()
+	{
 		return username;
 	}
 
-	public String getEncryptedPassword() {
+	public String getEncryptedPassword()
+	{
 		return encryptPassword();
 	}
 
 	/**
-	 * Returns encrypted version of given password like algorithm like in WS-UsernameToken
+	 * Returns encrypted version of given password like algorithm like in
+	 * WS-UsernameToken
 	 */
-	public String encryptPassword() {
+	public String encryptPassword()
+	{
 		String nonce = getNonce();
 		String timestamp = getUTCTime();
 
 		String beforeEncryption = nonce + timestamp + password;
 
 		byte[] encryptedRaw;
-		try {
+		try
+		{
 			encryptedRaw = sha1(beforeEncryption);
-		}
-		catch (NoSuchAlgorithmException e) {
+		} catch (NoSuchAlgorithmException e)
+		{
 			e.printStackTrace();
 			return null;
 		}
@@ -222,7 +238,8 @@ public class OnvifDevice {
 		return encoded;
 	}
 
-	private static byte[] sha1(String s) throws NoSuchAlgorithmException {
+	private static byte[] sha1(String s) throws NoSuchAlgorithmException
+	{
 		MessageDigest SHA1 = null;
 		SHA1 = MessageDigest.getInstance("SHA1");
 
@@ -233,30 +250,37 @@ public class OnvifDevice {
 		return encryptedRaw;
 	}
 
-	private String getNonce() {
-		if (nonce == null) {
+	private String getNonce()
+	{
+		if (nonce == null)
+		{
 			createNonce();
 		}
 		return nonce;
 	}
 
-	public String getEncryptedNonce() {
-		if (nonce == null) {
+	public String getEncryptedNonce()
+	{
+		if (nonce == null)
+		{
 			createNonce();
 		}
 		return Base64.encodeBase64String(nonce.getBytes());
 	}
 
-	public void createNonce() {
+	public void createNonce()
+	{
 		Random generator = new Random();
 		nonce = "" + generator.nextInt();
 	}
 
-	public String getLastUTCTime() {
+	public String getLastUTCTime()
+	{
 		return utcTime;
 	}
 
-	public String getUTCTime() {
+	public String getUTCTime()
+	{
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-d'T'HH:mm:ss'Z'");
 		sdf.setTimeZone(new SimpleTimeZone(SimpleTimeZone.UTC_TIME, "UTC"));
 
@@ -266,77 +290,94 @@ public class OnvifDevice {
 		return utcTime;
 	}
 
-	public SOAP getSoap() {
+	public SOAP getSoap()
+	{
 		return soap;
 	}
 
 	/**
 	 * Is used for basic devices and requests of given Onvif Device
 	 */
-	public InitialDevices getDevices() {
+	public InitialDevices getDevices()
+	{
 		return initialDevices;
 	}
 
 	/**
 	 * Can be used for PTZ controlling requests, may not be supported by device!
 	 */
-	public PtzDevices getPtz() {
+	public PtzDevices getPtz()
+	{
 		return ptzDevices;
 	}
 
 	/**
 	 * Can be used to get media data from OnvifDevice
+	 * 
 	 * @return
 	 */
-	public MediaDevices getMedia() {
+	public MediaDevices getMedia()
+	{
 		return mediaDevices;
 	}
 
 	/**
 	 * Can be used to get media data from OnvifDevice
+	 * 
 	 * @return
 	 */
-	public ImagingDevices getImaging() {
+	public ImagingDevices getImaging()
+	{
 		return imagingDevices;
 	}
 
-	public Logger getLogger() {
+	public Logger getLogger()
+	{
 		return logger;
 	}
 
-	public String getDeviceUri() {
+	public String getDeviceUri()
+	{
 		return serverDeviceUri;
 	}
 
-	protected String getPtzUri() {
+	protected String getPtzUri()
+	{
 		return serverPtzUri;
 	}
 
-	protected String getMediaUri() {
+	protected String getMediaUri()
+	{
 		return serverMediaUri;
 	}
 
-	protected String getImagingUri() {
+	protected String getImagingUri()
+	{
 		return serverImagingUri;
 	}
 
-	protected String getEventsUri() {
+	protected String getEventsUri()
+	{
 		return serverEventsUri;
 	}
-	
-	public Date getDate() {
+
+	public Date getDate()
+	{
 		return initialDevices.getDate();
 	}
-	
-	public String getName() {
+
+	public String getName()
+	{
 		return initialDevices.getDeviceInformation().getModel();
 	}
-	
-	public String getHostname() {
+
+	public String getHostname()
+	{
 		return initialDevices.getHostname();
 	}
-	
-	public String reboot() throws ConnectException, SOAPException {
+
+	public String reboot() throws ConnectException, SOAPException
+	{
 		return initialDevices.reboot();
 	}
 }

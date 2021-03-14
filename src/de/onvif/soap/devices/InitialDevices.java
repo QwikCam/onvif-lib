@@ -5,8 +5,6 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 
-import javax.xml.soap.SOAPException;
-
 import org.onvif.ver10.device.wsdl.GetCapabilities;
 import org.onvif.ver10.device.wsdl.GetCapabilitiesResponse;
 import org.onvif.ver10.device.wsdl.GetDeviceInformation;
@@ -41,6 +39,7 @@ import org.onvif.ver10.schema.User;
 
 import de.onvif.soap.OnvifDevice;
 import de.onvif.soap.SOAP;
+import jakarta.xml.soap.SOAPException;
 
 public class InitialDevices {
 

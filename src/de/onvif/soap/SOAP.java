@@ -4,75 +4,79 @@ import java.io.IOException;
 import java.net.ConnectException;
 import java.net.SocketException;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.UnmarshalException;
-import javax.xml.bind.Unmarshaller;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.soap.MessageFactory;
-import javax.xml.soap.SOAPConnection;
-import javax.xml.soap.SOAPConnectionFactory;
-import javax.xml.soap.SOAPConstants;
-import javax.xml.soap.SOAPElement;
-import javax.xml.soap.SOAPEnvelope;
-import javax.xml.soap.SOAPException;
-import javax.xml.soap.SOAPHeader;
-import javax.xml.soap.SOAPMessage;
-import javax.xml.soap.SOAPPart;
 
 import org.w3c.dom.Document;
 
-public class SOAP {
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Marshaller;
+import jakarta.xml.bind.Unmarshaller;
+import jakarta.xml.soap.MessageFactory;
+import jakarta.xml.soap.SOAPConnection;
+import jakarta.xml.soap.SOAPConnectionFactory;
+import jakarta.xml.soap.SOAPConstants;
+import jakarta.xml.soap.SOAPElement;
+import jakarta.xml.soap.SOAPEnvelope;
+import jakarta.xml.soap.SOAPException;
+import jakarta.xml.soap.SOAPHeader;
+import jakarta.xml.soap.SOAPMessage;
+import jakarta.xml.soap.SOAPPart;
+
+public class SOAP
+{
 
 	private boolean logging = true;
 
 	private OnvifDevice onvifDevice;
 
-	public SOAP(OnvifDevice onvifDevice) {
+	public SOAP(OnvifDevice onvifDevice)
+	{
 		super();
 
 		this.onvifDevice = onvifDevice;
 	}
 
-	public Object createSOAPDeviceRequest(Object soapRequestElem, Object soapResponseElem, boolean needsAuthentification) throws SOAPException,
-			ConnectException {
+	public Object createSOAPDeviceRequest(Object soapRequestElem, Object soapResponseElem, boolean needsAuthentification) throws SOAPException, ConnectException
+	{
 		return createSOAPRequest(soapRequestElem, soapResponseElem, onvifDevice.getDeviceUri(), needsAuthentification);
 	}
 
-	public Object createSOAPPtzRequest(Object soapRequestElem, Object soapResponseElem, boolean needsAuthentification) throws SOAPException, ConnectException {
+	public Object createSOAPPtzRequest(Object soapRequestElem, Object soapResponseElem, boolean needsAuthentification) throws SOAPException, ConnectException
+	{
 		return createSOAPRequest(soapRequestElem, soapResponseElem, onvifDevice.getPtzUri(), needsAuthentification);
 	}
 
-	public Object createSOAPMediaRequest(Object soapRequestElem, Object soapResponseElem, boolean needsAuthentification) throws SOAPException, ConnectException {
+	public Object createSOAPMediaRequest(Object soapRequestElem, Object soapResponseElem, boolean needsAuthentification) throws SOAPException, ConnectException
+	{
 		return createSOAPRequest(soapRequestElem, soapResponseElem, onvifDevice.getMediaUri(), needsAuthentification);
 	}
 
-	public Object createSOAPImagingRequest(Object soapRequestElem, Object soapResponseElem, boolean needsAuthentification) throws SOAPException,
-			ConnectException {
+	public Object createSOAPImagingRequest(Object soapRequestElem, Object soapResponseElem, boolean needsAuthentification) throws SOAPException, ConnectException
+	{
 		return createSOAPRequest(soapRequestElem, soapResponseElem, onvifDevice.getImagingUri(), needsAuthentification);
 	}
 
-	public Object createSOAPEventsRequest(Object soapRequestElem, Object soapResponseElem, boolean needsAuthentification) throws SOAPException,
-			ConnectException {
+	public Object createSOAPEventsRequest(Object soapRequestElem, Object soapResponseElem, boolean needsAuthentification) throws SOAPException, ConnectException
+	{
 		return createSOAPRequest(soapRequestElem, soapResponseElem, onvifDevice.getEventsUri(), needsAuthentification);
 	}
 
 	/**
 	 * 
-	 * @param soapResponseElem
-	 *            Answer object for SOAP request
+	 * @param soapResponseElem Answer object for SOAP request
 	 * @return SOAP Response Element
 	 * @throws SOAPException
 	 * @throws ConnectException
 	 */
-	public Object createSOAPRequest(Object soapRequestElem, Object soapResponseElem, String soapUri, boolean needsAuthentification) throws ConnectException,
-			SOAPException {
+	public Object createSOAPRequest(Object soapRequestElem, Object soapResponseElem, String soapUri, boolean needsAuthentification) throws ConnectException, SOAPException
+	{
 		SOAPConnection soapConnection = null;
 		SOAPMessage soapResponse = null;
 
-		try {
+		try
+		{
 			// Create SOAP Connection
 			SOAPConnectionFactory soapConnectionFactory = SOAPConnectionFactory.newInstance();
 			soapConnection = soapConnectionFactory.createConnection();
@@ -80,7 +84,8 @@ public class SOAP {
 			SOAPMessage soapMessage = createSoapMessage(soapRequestElem, needsAuthentification);
 
 			// Print the request message
-			if (isLogging()) {
+			if (isLogging())
+			{
 				System.out.print("Request SOAP Message (" + soapRequestElem.getClass().getSimpleName() + "): ");
 				soapMessage.writeTo(System.out);
 				System.out.println();
@@ -89,60 +94,56 @@ public class SOAP {
 			soapResponse = soapConnection.call(soapMessage, soapUri);
 
 			// print SOAP Response
-			if (isLogging()) {
+			if (isLogging())
+			{
 				System.out.print("Response SOAP Message (" + soapResponseElem.getClass().getSimpleName() + "): ");
 				soapResponse.writeTo(System.out);
 				System.out.println();
 			}
 
-			if (soapResponseElem == null) {
+			if (soapResponseElem == null)
+			{
 				throw new NullPointerException("Improper SOAP Response Element given (is null).");
 			}
 
 			Unmarshaller unmarshaller = JAXBContext.newInstance(soapResponseElem.getClass()).createUnmarshaller();
-			try {
-				try {
-					soapResponseElem = unmarshaller.unmarshal(soapResponse.getSOAPBody().extractContentAsDocument());
-				}
-				catch (SOAPException e) {
-					// Second try for SOAP 1.2
-					// Sorry, I don't know why it works, it just does o.o
-					soapResponseElem = unmarshaller.unmarshal(soapResponse.getSOAPBody().extractContentAsDocument());
-				}
-			}
-			catch (UnmarshalException e) {
-				// Fault soapFault = (Fault)
-				// unmarshaller.unmarshal(soapResponse.getSOAPBody().extractContentAsDocument());
-				onvifDevice.getLogger().warn("Could not unmarshal, ended in SOAP fault.");
-				// throw new SOAPFaultException(soapFault);
+			try
+			{
+				soapResponseElem = unmarshaller.unmarshal(soapResponse.getSOAPBody().extractContentAsDocument());
+			} catch (SOAPException e)
+			{
+				// Second try for SOAP 1.2
+				// Sorry, I don't know why it works, it just does o.o
+				soapResponseElem = unmarshaller.unmarshal(soapResponse.getSOAPBody().extractContentAsDocument());
 			}
 
 			return soapResponseElem;
-		}
-		catch (SocketException e) {
+		} catch (SocketException e)
+		{
 			throw new ConnectException(e.getMessage());
-		}
-		catch (SOAPException e) {
-			onvifDevice.getLogger().error(
-					"Unexpected response. Response should be from class " + soapResponseElem.getClass() + ", but response is: " + soapResponse);
+		} catch (SOAPException e)
+		{
+			onvifDevice.getLogger().error("Unexpected response. Response should be from class " + soapResponseElem.getClass() + ", but response is: " + soapResponse);
+			e.printStackTrace();
 			throw e;
-		}
-		catch (ParserConfigurationException | JAXBException | IOException e) {
+		} catch (ParserConfigurationException | JAXBException | IOException e)
+		{
 			onvifDevice.getLogger().error("Unhandled exception: " + e.getMessage());
 			e.printStackTrace();
 			return null;
-		}
-		finally {
-			try {
+		} finally
+		{
+			try
+			{
 				soapConnection.close();
-			}
-			catch (SOAPException e) {
+			} catch (SOAPException e)
+			{
 			}
 		}
 	}
 
-	protected SOAPMessage createSoapMessage(Object soapRequestElem, boolean needAuthentification) throws SOAPException, ParserConfigurationException,
-			JAXBException {
+	protected SOAPMessage createSoapMessage(Object soapRequestElem, boolean needAuthentification) throws SOAPException, ParserConfigurationException, JAXBException
+	{
 		MessageFactory messageFactory = MessageFactory.newInstance(SOAPConstants.SOAP_1_2_PROTOCOL);
 		SOAPMessage soapMessage = messageFactory.createMessage();
 
@@ -158,10 +159,12 @@ public class SOAP {
 		return soapMessage;
 	}
 
-	protected void createSoapHeader(SOAPMessage soapMessage) throws SOAPException {
+	protected void createSoapHeader(SOAPMessage soapMessage) throws SOAPException
+	{
 		onvifDevice.createNonce();
 		String encrypedPassword = onvifDevice.getEncryptedPassword();
-		if (encrypedPassword != null && onvifDevice.getUsername() != null) {
+		if (encrypedPassword != null && onvifDevice.getUsername() != null)
+		{
 
 			SOAPPart sp = soapMessage.getSOAPPart();
 			SOAPEnvelope se = sp.getEnvelope();
@@ -190,11 +193,13 @@ public class SOAP {
 		}
 	}
 
-	public boolean isLogging() {
+	public boolean isLogging()
+	{
 		return logging;
 	}
 
-	public void setLogging(boolean logging) {
+	public void setLogging(boolean logging)
+	{
 		this.logging = logging;
 	}
 }
