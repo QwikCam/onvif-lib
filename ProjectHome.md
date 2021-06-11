@@ -1,3 +1,5 @@
+This is a modified and updated version of the information below. The modifications allows for the most current versions of the packages that were used in the initial repository.
+
 [ONVIF](http://www.onvif.org/) (Open Network Video Interface Forum) is a community to standardize communication between IP-based security products (like cameras).
 
 I developed a Java library for the ONVIF spezification. It helps you with the basics (you don't need to learn SOAP e.g.) but you may need to learn a few basics about the ONVIF spezification. As far as I know, this is the first public Java project for the ONVIF spezification.
